@@ -1,19 +1,20 @@
 #pragma once
 
 #include <iostream>
+#include <cmath>
 using namespace std;
+
+#define ALPHA 0.6
 
 //Standard BST node, it is also used in the Scapegoat Tree
 template <typename T>
 struct SgNode{
     T data;
     SgNode<T> *left, *right;
-    int size;
 
     SgNode(T value){
         data = value;
         left = right = nullptr;
-        size = 1;
     }
 };
 
@@ -21,39 +22,19 @@ struct SgNode{
 template <typename T>
 class SgTree{
     SgNode<T>* root = nullptr;
+    int size, maxSize;
 
     public:
-        BST(){}
+        BST(){
+            size = 0;
+            maxSize = 0;
+        }
         ~BST(){
             clear(root);
         }
 
-        void insert(T value){
-
-            cout << "Inserting " << value << endl;
-            if (!root){
-                root = new SgNode<T>(value);
-                cout << "Inserted " << value << endl;
-                return;
-            }
-
-            //Find next available spot
-            SgNode<T>* temp = root, *prev = nullptr;
-            while (temp){
-                prev = temp;
-                if (value < temp->data){
-                    temp = temp->left;
-                } else {
-                    temp = temp->right;
-                }
-            }
-
-            //Insert in next available spot
-            if (value < prev->data){
-                prev->left = new SgNode<T>(value);
-            } else {
-                prev->right = new SgNode<T>(value);
-            }
+        void insert(T value){   
+            insert(this->root, value);
         }
 
         SgNode<T>* find(T value){
@@ -142,8 +123,101 @@ class SgTree{
         }
 
     private:
-        //Exclusive to Scapegoat Tree
+        //Default insert, return the height of the node. Using alpha-height function
+        void insert(SgNode<T>* &node, T value){
+            //Base case
+            if(node == nullptr){
+                node = new SgNode<T>(value);   
+            }
 
+            //Go trough the tree
+            else if (node->value < value)
+                insert(node->right, value);
+            else 
+                insert(node->left, value);
+
+            //Return of the recursion
+            //Check if the node is alpha-weight balanced
+            if(height(node) < height_a(node)){
+                //If it is, then it is not the scapegoat. Because the tree is alpha-weight balanced
+                return;
+            }
+
+            //If it is not, then it is the scapegoat. So we rebuild the tree
+            int n = size(node);
+            SgNode<T>* list = flatten(node, nullptr);
+            node = build(list, size(list));
+        }
+        
+        //Flatten the tree rooted at node (IN PLACE)
+        SgNode<T>* flatten(SgNode<T>*& node, SgNode<T>* list){
+            if (node == nullptr)
+                return list;
+            node->right = flatten(node->right, list);
+            return flatten(node->left, node);
+        }
+
+        //Build a balanced tree from a list of nodes
+        SgNode<T>* build(SgNode<T>* head, int n){
+            if(n == 0){
+                head->left = nullptr;
+                return head;
+            }
+            SgNode<T>* r = build(head, ceil((n-1)/2));
+            SgNode<T>* s = build(r->right,ceil((n-1)/2));
+
+            r->right = s->left;
+            s->left = r;
+            return s;
+        }
+
+
+        int size(SgNode<T>* node){
+            if(!node)
+                return 0;
+            
+            return size(node->left) + size(node->right) + 1;
+        }
+
+        int height_a(Node<T>* node){
+            return floor(log(size(node)) / log(1/ALPHA));
+        }
+
+        int height(SgNode<T>* node){
+            if(!node)
+                return -1;
+            
+            int leftHeight = height(node->left);
+            int rightHeight = height(node->right);
+
+            return (leftHeight > rightHeight) ? leftHeight + 1 : rightHeight + 1;
+        }
+
+        void clear(SgNode<T>* node){
+            if(!node)
+                return;
+            clear(node->left);
+            clear(node->right);
+            node->left = node->right = nullptr;
+            delete node;
+        }
+
+        void pretty(SgNode<T>* node, int level){
+            if(!node)
+                return;
+            pretty(node->right, level+1);
+            for(int i = 0; i < level; i++){
+                cout << "   ";
+            }
+            cout << node->data << endl;
+            pretty(node->left, level+1);
+        }
+};
+
+
+        /*
+
+        //Exclusive to Scapegoat Tree
         //Returns the numbers of keys stored in this sub-tree rooted at node
         int size(SgNode<T>* node){
             if(!node)
@@ -209,26 +283,4 @@ class SgTree{
                 depth++;
             }
             return depth;            
-        }
-
-
-        void clear(SgNode<T>* node){
-            if(!node)
-                return;
-            clear(node->left);
-            clear(node->right);
-            node->left = node->right = nullptr;
-            delete node;
-        }
-
-        void pretty(SgNode<T>* node, int level){
-            if(!node)
-                return;
-            pretty(node->right, level+1);
-            for(int i = 0; i < level; i++){
-                cout << "   ";
-            }
-            cout << node->data << endl;
-            pretty(node->left, level+1);
-        }
-};
+        } */
