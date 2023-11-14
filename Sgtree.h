@@ -22,19 +22,21 @@ struct SgNode{
 template <typename T>
 class SgTree{
     SgNode<T>* root = nullptr;
-    int size, maxSize;
+    int treeSize, maxTreeSize;
 
     public:
-        BST(){
-            size = 0;
-            maxSize = 0;
+        SgTree(){
+            treeSize = 0;
+            maxTreeSize = 0;
         }
-        ~BST(){
+        ~SgTree(){
             clear(root);
         }
 
         void insert(T value){   
             insert(this->root, value);
+            treeSize++;
+            maxTreeSize = max(maxTreeSize, treeSize);
         }
 
         SgNode<T>* find(T value){
@@ -131,7 +133,7 @@ class SgTree{
             }
 
             //Go trough the tree
-            else if (node->value < value)
+            else if (node->data < value)
                 insert(node->right, value);
             else 
                 insert(node->left, value);
@@ -171,7 +173,6 @@ class SgTree{
             return s;
         }
 
-
         int size(SgNode<T>* node){
             if(!node)
                 return 0;
@@ -179,7 +180,7 @@ class SgTree{
             return size(node->left) + size(node->right) + 1;
         }
 
-        int height_a(Node<T>* node){
+        int height_a(SgNode<T>* node){
             return floor(log(size(node)) / log(1/ALPHA));
         }
 

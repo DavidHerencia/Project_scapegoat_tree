@@ -1,10 +1,11 @@
 #include <iostream>
 #include "Bst.h"
+#include "Sgtree.h"
 using namespace std;
 
 int main(){
     //Test program for BST
-    BST<int> bst;
+    SgTree<int> bst;
 
     cout << "Inserting 10, 5, 20, 15, 30, 25, 40, 35, 50, 45, 60, 55, 70, 65, 80, 75, 90, 85, 100" << endl;
     bst.insert(25);
@@ -23,13 +24,14 @@ int main(){
     cout << "Inserted right" << endl;
     bst.pretty();
 
+    /*
     cout << "Removing 20" << endl;
     bst.remove(20);
     bst.pretty();
 
     cout << "Removing 25" << endl;
     bst.remove(25);
-    bst.pretty();
+    bst.pretty();*/
 
     cout << "DONE!" << endl;
     return 0;
