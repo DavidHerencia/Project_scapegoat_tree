@@ -130,6 +130,8 @@ class SgTree{
             //Base case
             if(node == nullptr){
                 node = new SgNode<T>(value);   
+                cout << "Return of the recursion : " << value << endl;
+                return;
             }
 
             //Go trough the tree
@@ -138,17 +140,24 @@ class SgTree{
             else 
                 insert(node->left, value);
 
+            cout << "Return of the recursion : " << value << endl;
             //Return of the recursion
             //Check if the node is alpha-weight balanced
             if(height(node) < height_a(node)){
                 //If it is, then it is not the scapegoat. Because the tree is alpha-weight balanced
                 return;
             }
-
             //If it is not, then it is the scapegoat. So we rebuild the tree
+
+            cout << "Rebuilding tree" << endl;
+
             int n = size(node);
+            cout << "Size of the tree : " << n << endl;
             SgNode<T>* list = flatten(node, nullptr);
-            node = build(list, size(list));
+            if(!list)
+                cout << "List is empty" << endl;
+            
+            node = build(n - 1, list);
         }
         
         //Flatten the tree rooted at node (IN PLACE)
@@ -160,21 +169,20 @@ class SgTree{
         }
 
         //Build a balanced tree from a list of nodes
-        SgNode<T>* build(SgNode<T>* head, int n){
+        SgNode<T>* build(int n, SgNode<T>* head){
             if(n == 0){
                 head->left = nullptr;
                 return head;
             }
-            SgNode<T>* r = build(head, ceil((n-1)/2));
-            SgNode<T>* s = build(r->right,ceil((n-1)/2));
-
+            SgNode<T>* r = build(ceil((n-1)/2), head);
+            SgNode<T>* s = build(floor((n-1)/2), r->right);
             r->right = s->left;
             s->left = r;
             return s;
         }
 
         int size(SgNode<T>* node){
-            if(!node)
+            if(node == nullptr)
                 return 0;
             
             return size(node->left) + size(node->right) + 1;
@@ -185,9 +193,9 @@ class SgTree{
         }
 
         int height(SgNode<T>* node){
-            if(!node)
+            if(node == nullptr)
                 return -1;
-            
+
             int leftHeight = height(node->left);
             int rightHeight = height(node->right);
 

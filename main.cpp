@@ -10,6 +10,9 @@ int main(){
     cout << "Inserting 10, 5, 20, 15, 30, 25, 40, 35, 50, 45, 60, 55, 70, 65, 80, 75, 90, 85, 100" << endl;
     bst.insert(25);
     bst.insert(20);
+
+    bst.pretty();
+
     bst.insert(10);
     bst.insert(22);
     bst.insert(5);
