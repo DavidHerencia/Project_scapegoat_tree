@@ -33,91 +33,19 @@ class SgTree{
             clear(root);
         }
 
-        void insert(T value){   
-            insert(this->root, value);
+        void insert(T value){
+            insert(this->root,value);
             treeSize++;
-            maxTreeSize = max(maxTreeSize, treeSize);
+            if(treeSize > maxTreeSize)
+                maxTreeSize = treeSize;
         }
 
         SgNode<T>* find(T value){
-            if(!root)
-                throw "Tree is empty";
-
-            SgNode<T>* current = root;
-            while (current){
-                if (value == current->data){
-                    return current;
-                } else if (value < current->data){
-                    current = current->left;
-                } else {
-                    current = current->right;
-                }
-            }
-            return nullptr;
+            //Todo
         }
 
         void remove(T value){
-            //Find SgNode
-            SgNode<T>* current = root, *prev = nullptr;
-            while (current){
-                if (value == current->data){
-                    break;
-                } else if (value < current->data){
-                    prev = current;
-                    current = current->left;
-                } else {
-                    prev = current;
-                    current = current->right;
-                }
-            }
-
-            //Check if SgNode was found
-            if (!current){
-                cout << "SgNode not found" << endl;
-                return;
-            }
-
-            //Case 1: SgNode is a leaf
-            if(!current->left && !current->right){
-                if(prev->left == current){
-                    prev->left = nullptr;
-                } else {
-                    prev->right = nullptr;
-                }
-
-                delete current;
-            }
-            //Case 2: SgNode has only a subtree
-            else if ((!current->left && current->right) || (current->left && !current->right)){
-                if (prev->left == current) {
-                    if (current->left)
-                        prev->left = current->left;
-                    else
-                        prev->left = current->right;
-                } else {
-                    if (current->left)
-                        prev->right = current->left;
-                    else
-                    prev->right = current->right;
-                }
-                delete current;
-            }
-            //Case 3: SgNode has both subtrees
-            else {
-                //Get succesor
-                SgNode<T>* succesor = current->right, *prevSuccesor = current;
-                while (succesor->left){
-                    prevSuccesor = succesor;
-                    succesor = succesor->left;
-                }
-                T sucesorValue = succesor->data;
-
-                //Remove succesor
-                remove(sucesorValue);
-
-                //Replace current with succesor
-                current->data = sucesorValue;
-            }
+            //Todo
         }
 
         void pretty(){
@@ -125,43 +53,65 @@ class SgTree{
         }
 
     private:
-        //Default insert, return the height of the node. Using alpha-height function
-        void insert(SgNode<T>* &node, T value){
-            //Base case
+        void insert(SgNode<T>*& node, T value){
             if(node == nullptr){
-                node = new SgNode<T>(value);   
-                cout << "Return of the recursion : " << value << endl;
+                node = new SgNode<T>(value);
                 return;
             }
 
-            //Go trough the tree
-            else if (node->data < value)
-                insert(node->right, value);
-            else 
+            if(value < node->data)
                 insert(node->left, value);
-
-            cout << "Return of the recursion : " << value << endl;
-            //Return of the recursion
-            //Check if the node is alpha-weight balanced
-            if(height(node) < height_a(node)){
-                //If it is, then it is not the scapegoat. Because the tree is alpha-weight balanced
-                return;
-            }
-            //If it is not, then it is the scapegoat. So we rebuild the tree
-
-            cout << "Rebuilding tree" << endl;
-
-            int n = size(node);
-            cout << "Size of the tree : " << n << endl;
-            SgNode<T>* list = flatten(node, nullptr);
-            if(!list)
-                cout << "List is empty" << endl;
+            else
+                insert(node->right, value);
             
-            node = build(n - 1, list);
+            cout << "PASSED TROUGH" << &node << " WITH VALUE:" << node->data << endl;
+
+            //check if node is unbalanced
+            int subtreeSizeLeft = size(node->left);
+            int subtreeSizeRight = size(node->right);
+            int subtreeSize = subtreeSizeLeft + subtreeSizeRight + 1;
+            if(subtreeSizeLeft <= subtreeSize * ALPHA && subtreeSizeRight <= subtreeSize * ALPHA)
+                return;
+
+            // Rebuild tree at node
+            T* values = new T[subtreeSize];
+            inOrdenAuxiliar(node,values,0);
+            return;
+        }
+
+        T* inOrdenAuxiliar(SgNode<T>* node, T* values, int index){
+            if(node == nullptr)
+                return values;
+            
+            values = inOrdenAuxiliar(node->left, values, index);
+            values[index++] = node->data;
+            cout << node->data << " ";
+            values = inOrdenAuxiliar(node->right, values, index);
+            return values;
+        }
+
+        SgNode<T>* buildTree(int n, T* values){
+            SgNode<T>* list = nullptr;
+            SgNode<T>* node = root;
+
+            //Flatten the tree rooted at scapegoat
+            list = flatten(node, list);
+            build(n, list);
+            return list->left;
+        }
+
+        SgNode<T>* buildTree(int n, SgNode<T>* scapegoat){
+            SgNode<T>* list = nullptr;
+            SgNode<T>* node = scapegoat;
+
+            //Flatten the tree rooted at scapegoat
+            list = flatten(node, list);
+            build(n, list);
+            return list->left;
         }
         
         //Flatten the tree rooted at node (IN PLACE)
-        SgNode<T>* flatten(SgNode<T>*& node, SgNode<T>* list){
+        SgNode<T>* flatten(SgNode<T>* node, SgNode<T>* list){
             if (node == nullptr)
                 return list;
             node->right = flatten(node->right, list);
@@ -171,11 +121,22 @@ class SgTree{
         //Build a balanced tree from a list of nodes
         SgNode<T>* build(int n, SgNode<T>* head){
             if(n == 0){
-                head->left = nullptr;
+                if(head != nullptr)
+                    head->left = nullptr;
                 return head;
             }
             SgNode<T>* r = build(ceil((n-1)/2), head);
             SgNode<T>* s = build(floor((n-1)/2), r->right);
+            r->right = s->left;
+            s->left = r;
+            return s;
+        }
+
+        SgNode<T>* build(int n, T* values){
+            if(n == 0)
+                return nullptr;
+            SgNode<T>* r = build(ceil((n-1)/2), values);
+            SgNode<T>* s = build(floor((n-1)/2), values + ceil((n-1)/2) + 1);
             r->right = s->left;
             s->left = r;
             return s;
