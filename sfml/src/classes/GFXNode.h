@@ -1,5 +1,11 @@
 #pragma once
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
+enum Side{
+    LEFT,
+    RIGHT
+};
 
 //Node that contains ONLY INT data
 class GFXNode{
@@ -7,9 +13,8 @@ class GFXNode{
     private:
         //Logical data
         int data;
-        GFXNode *left;
-        GFXNode *right;
-
+        sf::VertexArray leftChildLine;
+        sf::VertexArray rightChildLine;
 
         //SFML specific data
         sf::CircleShape shape; //GRAPHIC REPRESENTATION OF THE NODE
@@ -18,7 +23,6 @@ class GFXNode{
         void setLabel(){
             this->text.setString(std::to_string(this->data));
             //Set origin to center
-            this->text.setOrigin(this->text.getLocalBounds().width/2, this->text.getLocalBounds().height/2);
             this->setLabelPosition();
         }
 
@@ -28,28 +32,29 @@ class GFXNode{
 
             //Get shape size
             auto shapeSize = this->shape.getRadius();
+            //std::cout << shapeSize << std::endl;
             
             //Text bounds
             auto textBounds = this->text.getLocalBounds();
+            //std::cout << "Text bounds: " << textBounds.width << " " << textBounds.height << std::endl;
             //Set text position
-            this->text.setPosition(int(shapePosition.x + shapeSize - 2 ), int(shapePosition.y + shapeSize - 1));
+            this->text.setPosition(int(shapePosition.x + shapeSize - textBounds.width * 0.5 ) - 1, int(shapePosition.y + shapeSize - textBounds.height * 0.5 ) - 1);
         }
 
     public:
-        GFXNode(sf::Font& ttf, int data) : shape(24,16),text("", ttf, 16){
+        GFXNode(sf::Font& ttf, int data) : shape(20,10), text("", ttf, 16), leftChildLine(sf::Lines, 2), rightChildLine(sf::Lines, 2){
             this->data = data;
-            this->left = nullptr;
-            this->right = nullptr;
 
             //Set shape properties
             this->shape.setFillColor(sf::Color::White);
-        
+
             //Set text properties
             this->text.setColor(sf::Color::Black);
             this->setLabel();
         }
         
         void draw(sf::RenderWindow &window){
+            window.draw(this->leftChildLine);
             window.draw(this->shape);
             window.draw(this->text);
         }
@@ -58,30 +63,29 @@ class GFXNode{
             this->shape.setPosition(x, y);
             this->setLabelPosition();
         }
+        
 
+        void connectTo(Side s, GFXNode* node){
+            sf::VertexArray& line = s == LEFT ? this->leftChildLine : this->rightChildLine;
 
-        /*
-        *   Getters and setters
-        */
-
-        int getData(){
-            return this->data;
+            auto thisCenter = this->getCenter();
+            auto leftCenter = node->getCenter();
+            line[0].position = thisCenter;
+            line[1].position = leftCenter;
         }
 
-        GFXNode* getLeft(){
-            return this->left;
+        void connectToRight(GFXNode* right){
+            auto thisCenter = this->getCenter();
+            auto rightCenter = right->getCenter();
+            this->rightChildLine[0].position = thisCenter;
+            this->rightChildLine[1].position = rightCenter;
         }
 
-        GFXNode* getRight(){
-            return this->right;
-        }
 
-        void setLeft(GFXNode* left){
-            this->left = left;
-        }
-
-        void setRight(GFXNode* right){
-            this->right = right;
+        sf::Vector2f getCenter(){
+            auto shapePosition = this->shape.getPosition();
+            auto shapeSize = this->shape.getRadius();
+            return sf::Vector2f(shapePosition.x + shapeSize, shapePosition.y + shapeSize);
         }
 
         void setData(int data){

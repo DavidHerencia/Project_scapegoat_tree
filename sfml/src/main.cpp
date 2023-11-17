@@ -20,7 +20,13 @@ int main()
         std::cout << "Font loaded" << std::endl;
 
 
-    GFXNode node(font, 10);
+    GFXNode node(font, 5);
+    GFXNode node2(font, 15);
+
+    node2.setPosition(50, 50);
+    node.connectTo(RIGHT,&node2);
+
+
 
     while (window.isOpen())
     {
@@ -33,6 +39,7 @@ int main()
         }
         window.clear();
         node.draw(window);
+        node2.draw(window);
         window.display();
     }
 }
