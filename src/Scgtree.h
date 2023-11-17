@@ -77,12 +77,12 @@ class ScgTree{
                 insert(node->right, value, rebuilding);
             }
             else{
+                // value is already in the tree
                 return;
             }
 
 
             // return of the recursion
-
             // check if node is unbalanced
             if (double(height(node)) > height_a(node)  && !rebuilding){
                 int subtreeSize = size(node);
@@ -200,74 +200,3 @@ class ScgTree{
             pretty(node->left, level+1);
         }
 };
-
-
-        /*
-
-        //Exclusive to Scapegoat Tree
-        //Returns the numbers of keys stored in this sub-tree rooted at node
-        int size(ScgNode<T>* node){
-            if(!node)
-                return 0;
-            
-            return size(node->left) + size(node->right) + 1;
-        }
-
-        //Returns the brother of node
-        ScgNode<T>* brother(ScgNode<T>* node){
-            //Find parent
-            ScgNode<T>* parent = root, *prev = nullptr;
-            while (parent){
-                if (node->data == parent->data){
-                    break;
-                } else if (node->data < parent->data){
-                    prev = parent;
-                    parent = parent->left;
-                } else {
-                    prev = parent;
-                    parent = parent->right;
-                }
-            }
-
-            //Check if parent was found
-            if (!parent){
-                cout << "Parent not found" << endl;
-                return;
-            }
-
-            //Return brother
-            if(parent->left == node)
-                return parent->right;
-            else
-                return parent->left;
-        }
-
-        //Returns the height of the tree rooted at node
-        int height(ScgNode<T>* node){
-            if(!node)
-                return -1;
-            
-            int leftHeight = height(node->left);
-            int rightHeight = height(node->right);
-
-            return (leftHeight > rightHeight) ? leftHeight + 1 : rightHeight + 1;
-        }
-        //Returns the depth of node
-        int depth(ScgNode<T>* node){
-            if(!node)
-                return -1;
-            
-            int depth = 0;
-            ScgNode<T>* current = root;
-            while (current){
-                if (node->data == current->data){
-                    break;
-                } else if (node->data < current->data){
-                    current = current->left;
-                } else {
-                    current = current->right;
-                }
-                depth++;
-            }
-            return depth;            
-        } */
