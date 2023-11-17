@@ -11,7 +11,7 @@ class Stack : public CircularArray<T> {
     Stack();
 
 
-    void push(T &value);
+    void push(T value);
     T pop();
     void display();
 
@@ -21,7 +21,7 @@ template <class T>
 Stack<T>::Stack(){}
 
 template <class T>
-void Stack<T>::push(T &value){
+void Stack<T>::push(T value){
     // Utilizamos el metodo push_back de la clase CircularArray
     this->push_back(value);
     size++;

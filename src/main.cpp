@@ -1,10 +1,10 @@
 #include <iostream>
-#include "Sgtree.h"
+#include "Scgtree.h"
 using namespace std;
 
 void test_insert_bst_scpt(){
     //Test program for BST
-    SgTree<int> bst;
+    ScgTree<int> bst;
     int input;
     while (input != 100){
         cout << "INSERTING" << endl;
@@ -21,7 +21,7 @@ void test_insert_bst_scpt(){
 
 void test_insert_bst_fig_1(){
     //Test program for BST
-    SgTree<int> bst;
+    ScgTree<int> bst;
     int input;
     int *arr = new int[17]{2,1, 6, 5, 15, 4,3, 12,16, 17, 18,13,14, 9, 7, 11, 10};
     for (int i = 0; i < 17; i++){
@@ -50,7 +50,7 @@ void test_insert_bst_fig_1(){
 
 int main(){
     //Test program for BST
-    SgTree<int> bst;
+    ScgTree<int> bst;
 
     test_insert_bst_scpt(); 
     //test_insert_bst_fig_1();

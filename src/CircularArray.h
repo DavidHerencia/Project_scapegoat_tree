@@ -16,7 +16,7 @@ class CircularArray {
     CircularArray(int _capacity = DEFAULT_CAPACITY);
     virtual ~CircularArray();
     void push_front(T data);
-    void push_back(T &data);
+    void push_back(T data);
     void insert(T data, int pos);
     T pop_front();
     T pop_back();
@@ -67,7 +67,7 @@ void CircularArray<T>::push_front(T data) {
 }
 
 template <class T>
-void CircularArray<T>::push_back(T &data) {
+void CircularArray<T>::push_back(T data) {
     if (this->is_full()) {
         resize();
     }
