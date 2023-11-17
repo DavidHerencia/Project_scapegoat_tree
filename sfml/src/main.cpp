@@ -1,9 +1,26 @@
 #include <SFML/Graphics.hpp>
+#include <iostream>
+
+#include "classes/GFXNode.h"
 
 int main()
 {
-    auto window = sf::RenderWindow{ { 640, 480 }, "CMake SFML Project" };
-    window.setFramerateLimit(144);
+    sf::ContextSettings settings;
+    settings.antialiasingLevel = 0;
+
+
+    auto window = sf::RenderWindow(sf::VideoMode(640, 480), "Scapegoat-tree Visualizer", sf::Style::Default, settings);
+    window.setFramerateLimit(60);
+
+    //Create text
+    sf::Font font;
+    if(!font.loadFromFile("assets/font.ttf"))
+        std::cout << "Error loading font" << std::endl;
+    else
+        std::cout << "Font loaded" << std::endl;
+
+
+    GFXNode node(font, 10);
 
     while (window.isOpen())
     {
@@ -14,8 +31,8 @@ int main()
                 window.close();
             }
         }
-
         window.clear();
+        node.draw(window);
         window.display();
     }
 }
