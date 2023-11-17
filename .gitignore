@@ -1,0 +1,4 @@
+sfml/build
+.vscode/
+
+*.exe
