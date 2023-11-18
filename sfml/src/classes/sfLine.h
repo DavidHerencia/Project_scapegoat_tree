@@ -3,7 +3,6 @@
 #include <cmath>
 //Line with thickness
 
-
 namespace sf {
     class Line : public sf::Drawable {
     public:

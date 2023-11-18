@@ -22,7 +22,7 @@ class GFXNode : public sf::Drawable {
     public:
         GFXNode(sf::Font& ttf, int data) : shape(20,10), text("", ttf, 16), leftChildLine(sf::Color::Green), rightChildLine(sf::Color::Blue){
             this->data = data;
-
+            
             //Set shape properties
             this->shape.setFillColor(sf::Color::White);
 
@@ -30,8 +30,12 @@ class GFXNode : public sf::Drawable {
             this->text.setColor(sf::Color::Black);
             this->setLabel();
 
+
             //Set center origin of shape
             this->shape.setOrigin(this->shape.getRadius(), this->shape.getRadius());
+
+            this->setPosition(20,20);
+
             leftChildLine.update_point(this->getCenter(), this->getCenter());
             rightChildLine.update_point(this->getCenter(), this->getCenter());
         }

@@ -4,12 +4,16 @@
 #include <list>
 #include "GFXNode.h"
 
+#define MIN_NODE_SEP 15.0f
+
 class TreeHandler {
     //SFML specific data
     sf::Font font;
     sf::RenderTarget& target;
     std::list<GFXNode*> nodes;
     GFXNode* root{};
+
+    
 
     //Logical data
     int maxDepth{};
@@ -55,11 +59,8 @@ class TreeHandler {
                 temp->depth = depth;
                 temp->parent = parent;
                 parent->connectTo((data < parent->data) ? LEFT : RIGHT, temp);
-                rearrange();
                 this->nodes.push_back(temp);
-
-                std::cout << "VALUE INSERTED: " << data << " SIDE: " << (depth) << "maxDepth" << maxDepth << "\n";
-                
+                rearrange();
             }
         }
 
@@ -75,30 +76,25 @@ class TreeHandler {
     void rearrange() {
         std::cout << "Rearranging" << std::endl;
         // Setea la posición inicial y el espacio horizontal
-        float initialX = target.getSize().x / 2;
-        float horizontalSpace = 10.0f;
 
-        rearrangeNodes(root, initialX, 50.0f, horizontalSpace);
+        rearrangeNodes(root);
         }
 
-    void rearrangeNodes(GFXNode* node, float x, float y, float horizontalSpace) {
+    void rearrangeNodes(GFXNode* node) {
         if (node == nullptr)
             return;
 
-        // Calcular el espacio necesario para los hijos
-        float spaceNeeded = horizontalSpace * pow(2, (maxDepth - node->depth) + 1);
+        //Set children positions
+        float offsetX = MIN_NODE_SEP * pow(2,(this->maxDepth - node->depth));
 
-        // Ajustar la posición para evitar colisiones
-        if (node->leftChild != nullptr) {
-            float childX = x - spaceNeeded / 2;
-            node->leftChild->setPosition(childX, y + 60.0f);
-            rearrangeNodes(node->leftChild, childX, y + 60.0f, horizontalSpace / 2);
+        if(node->leftChild != nullptr){
+            node->leftChild->setPosition(node->getCenter().x - offsetX, node->getCenter().y + 100);
+        }
+        if(node->rightChild != nullptr){
+            node->rightChild->setPosition(node->getCenter().x + offsetX, node->getCenter().y + 100);
         }
 
-        if (node->rightChild != nullptr) {
-            float childX = x + spaceNeeded / 2;
-            node->rightChild->setPosition(childX, y + 60.0f);
-            rearrangeNodes(node->rightChild, childX, y + 60.0f, horizontalSpace / 2);
-        }
+        rearrangeNodes(node->leftChild);
+        rearrangeNodes(node->rightChild);
     }
 };
