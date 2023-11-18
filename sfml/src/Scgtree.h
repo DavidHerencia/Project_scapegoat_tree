@@ -4,6 +4,9 @@
 #include <queue>
 #include <cmath>
 #include "Stack.h"
+#include <SFML/Graphics.hpp>
+#include "classes/GFXNode.h"
+
 
 using namespace std;
 
@@ -13,12 +16,14 @@ using namespace std;
 template <typename T>
 struct ScgNode{
     T data;
-    
+    GFXNode* gfxNode;    
+
     ScgNode<T> *left{}, *right{};
     ScgNode() = default;
     ScgNode(T value){
         data = value;
         left = right = nullptr;
+
     }
 
 };
