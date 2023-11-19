@@ -42,6 +42,14 @@ int main()
             tree.addNode(21);
             tree.addNode(28);
             tree.addNode(34);
+            
+            tree.addNode(10);
+            tree.addNode(100);
+            tree.addNode(1);
+            tree.addNode(1052);
+            tree.addNode(100);
+            tree.addNode(2);
+
             sf::sleep(sf::milliseconds(500));
 
 
@@ -72,6 +80,13 @@ int main()
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down)){
             view.move(0, 10);;
+        }
+
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
+            view.zoom(0.99f);
+        }
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
+            view.zoom(1.01f);
         }
 
         window.setView(view);

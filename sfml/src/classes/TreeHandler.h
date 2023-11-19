@@ -43,8 +43,11 @@ class TreeHandler {
                     parent = temp;
                     if(data < temp->data)
                         temp = temp->leftChild;
-                    else
+                    else if (data > temp->data)
                         temp = temp->rightChild;
+                    else
+                        return;
+                    
                 }
 
                 if(depth > this->maxDepth){
@@ -55,8 +58,8 @@ class TreeHandler {
                 temp->depth = depth;
                 temp->parent = parent;
                 parent->connectTo((data < parent->data) ? LEFT : RIGHT, temp);
-                rearrange();
                 this->nodes.push_back(temp);
+                reArrange(this->root);
 
                 std::cout << "VALUE INSERTED: " << data << " SIDE: " << (depth) << "maxDepth" << maxDepth << "\n";
                 
@@ -68,37 +71,43 @@ class TreeHandler {
                 target.draw(*node);
                 node->updateChildrenLines();
             }
-            
         }
 
     private:
-    void rearrange() {
-        std::cout << "Rearranging" << std::endl;
-        // Setea la posición inicial y el espacio horizontal
-        float initialX = target.getSize().x / 2;
-        float horizontalSpace = 10.0f;
+        void reArrange(GFXNode* node){
+            //sf::sleep(sf::milliseconds(100));
+            //Arrange nodes based on weight
+            //Find most left leaf
+            if(node == nullptr)
+                return;
 
-        rearrangeNodes(root, initialX, 50.0f, horizontalSpace);
+            long offsetLeft = 30 * (getWeight(node->leftChild));
+            long offsetRight = 30 * (getWeight(node->rightChild));
+
+            std::cout << "Node: " << node->data << " offsetLeft: " << offsetLeft << " offsetRight: " << offsetRight << std::endl;
+
+            auto center = node->getCenter();
+
+            if(node->leftChild != nullptr)
+                node->leftChild->setPosition(center.x - offsetLeft, center.y + 50);
+            
+            if(node->rightChild != nullptr)
+                node->rightChild->setPosition(center.x + offsetRight, center.y + 50);
+
+            reArrange(node->leftChild);
+            reArrange(node->rightChild);
         }
 
-    void rearrangeNodes(GFXNode* node, float x, float y, float horizontalSpace) {
-        if (node == nullptr)
-            return;
+        long getWeight(GFXNode* node){
+            if(node == nullptr)
+                return 0;
+            else if(node->isLeaf())
+                return getWeight(node->leftChild) + getWeight(node->rightChild) +  1;
+            else if (node->leftChild != nullptr && node->rightChild == nullptr)
+                return getWeight(node->leftChild) + getWeight(node->rightChild) +  2;
+            else 
+                return getWeight(node->leftChild) + getWeight(node->rightChild) + 3;
 
-        // Calcular el espacio necesario para los hijos
-        float spaceNeeded = horizontalSpace * pow(2, (maxDepth - node->depth) + 1);
-
-        // Ajustar la posición para evitar colisiones
-        if (node->leftChild != nullptr) {
-            float childX = x - spaceNeeded / 2;
-            node->leftChild->setPosition(childX, y + 60.0f);
-            rearrangeNodes(node->leftChild, childX, y + 60.0f, horizontalSpace / 2);
         }
 
-        if (node->rightChild != nullptr) {
-            float childX = x + spaceNeeded / 2;
-            node->rightChild->setPosition(childX, y + 60.0f);
-            rearrangeNodes(node->rightChild, childX, y + 60.0f, horizontalSpace / 2);
-        }
-    }
 };

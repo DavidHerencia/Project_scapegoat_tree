@@ -17,7 +17,7 @@ class GFXNode : public sf::Drawable {
     sf::Text text;         //Position is based on the shape 
 
     public:
-        GFXNode* leftChild{}, *rightChild{}, *parent{};
+        GFXNode *leftChild{}, *rightChild{}, *parent{};
         int data,depth{};
     public:
         GFXNode(sf::Font& ttf, int data) : shape(20,10), text("", ttf, 16), leftChildLine(sf::Color::Green), rightChildLine(sf::Color::Blue){
@@ -70,11 +70,17 @@ class GFXNode : public sf::Drawable {
         }
 
         void updateChildrenLines() {
-            if(this->leftChild != nullptr)
+            if(this->leftChild != nullptr){
+                sf::Vector2f relativePositionLeftChild = this->leftChild->getCenter() - this->getCenter();
                 this->leftChildLine.update_point(this->getCenter(), this->leftChild->getCenter());
+                //this->leftChild->setPosition(this->getCenter().x + relativePositionLeftChild.x, this->getCenter().y + relativePositionLeftChild.y);
+            }
             
-            if(this->rightChild != nullptr)
+            if(this->rightChild != nullptr){
+                sf::Vector2f relativePositionRightChild = this->rightChild->getCenter() - this->getCenter();
                 this->rightChildLine.update_point(this->getCenter(), this->rightChild->getCenter());
+                //this->rightChild->setPosition(this->getCenter().x + relativePositionRightChild.x, this->getCenter().y + relativePositionRightChild.y);
+            }
         }
 
         sf::Vector2f getCenter(){
@@ -93,6 +99,10 @@ class GFXNode : public sf::Drawable {
 
         void select(bool val){
             this->shape.setFillColor((val) ? sf::Color::Red : sf::Color::White);
+        }
+
+        bool isLeaf(){
+            return (this->leftChild == nullptr && this->rightChild == nullptr);
         }
 
     private:
