@@ -5,33 +5,22 @@
 #include <cmath>
 #include "Stack.h"
 
+#include "../classes/Node.h"
+#include "../classes/TreeHandler.h"
+
 using namespace std;
 
 #define ALPHA 0.57
-
-//Standard BST node, it is also used in the Scapegoat Tree
-template <typename T>
-struct ScgNode{
-    T data;
-    ScgNode<T> *left{}, *right{};
-
-    ScgNode() = default;
-
-    ScgNode(T value){
-        data = value;
-        left = right = nullptr;
-    }
-
-};
 
 //Scapegoat Tree class implementation
 template <typename T>
 class ScgTree{
     ScgNode<T>* root = nullptr;
     int treeSize, maxTreeSize;
+    TreeHandler<T>& treeHandler;
 
     public:
-        ScgTree(){
+        ScgTree(TreeHandler<T> & _treeHandler): treeHandler(_treeHandler){
             treeSize = 0;
             maxTreeSize = 0;
         }
@@ -112,6 +101,8 @@ bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
             //caso base
             if(node == nullptr){
                 node = new ScgNode<T>(value);
+                treeHandler.addNode(node);
+                std::cout << "Inserted " << node->data << std::endl;
                 return true;
             }
 
@@ -230,8 +221,6 @@ template <typename T>
 void ScgTree<T>::rebuild(int n, ScgNode<T>* &scapegoat){
     ScgNode<T>* dumi_node = new ScgNode<T>();  // w en el paper
     ScgNode<T>* list; // z en el paper 
-
-    
 
     // Flatten the tree rooted at scapegoat
     list = flatten(scapegoat, dumi_node);

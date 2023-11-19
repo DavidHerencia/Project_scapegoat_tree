@@ -9,6 +9,7 @@ enum Side{
 };
 
 //Node that contains ONLY INT data
+template <typename T>
 class GFXNode : public sf::Drawable {
 
     sf::Line leftChildLine, rightChildLine;
@@ -17,11 +18,9 @@ class GFXNode : public sf::Drawable {
     sf::Text text;         //Position is based on the shape 
 
     public:
-        GFXNode *leftChild{}, *rightChild{}, *parent{};
-        int data,depth{};
+        T& dataHolder;
     public:
-        GFXNode(sf::Font& ttf, int data) : shape(20,10), text("", ttf, 16), leftChildLine(sf::Color::Green), rightChildLine(sf::Color::Blue){
-            this->data = data;
+        GFXNode(sf::Font& ttf, T& _holder) : shape(20,10), dataHolder(_holder), text("", ttf, 16), leftChildLine(sf::Color::Green), rightChildLine(sf::Color::Blue){
             
             //Set shape properties
             this->shape.setFillColor(sf::Color::White);
@@ -50,13 +49,6 @@ class GFXNode : public sf::Drawable {
         void setPosition(float x, float y){
             this->shape.setPosition(x, y);
             this->setLabelPosition();
-
-            //Update lines
-            if(this->leftChild != nullptr)
-                this->leftChildLine.update_point(this->getCenter(), this->leftChild->getCenter());
-            
-            if(this->rightChild != nullptr)
-                this->rightChildLine.update_point(this->getCenter(), this->rightChild->getCenter());
         }
         
 
@@ -73,30 +65,19 @@ class GFXNode : public sf::Drawable {
             //std::cout << "Connected " << this->data << " to " << node->data << "FROM SIDE" << ((s == LEFT) ? "LEFT" : "RIGHT") << std::endl;
         }
 
-        void updateChildrenLines() {
-            if(this->leftChild != nullptr){
-                sf::Vector2f relativePositionLeftChild = this->leftChild->getCenter() - this->getCenter();
-                this->leftChildLine.update_point(this->getCenter(), this->leftChild->getCenter());
-                //this->leftChild->setPosition(this->getCenter().x + relativePositionLeftChild.x, this->getCenter().y + relativePositionLeftChild.y);
-            }
-            
-            if(this->rightChild != nullptr){
-                sf::Vector2f relativePositionRightChild = this->rightChild->getCenter() - this->getCenter();
-                this->rightChildLine.update_point(this->getCenter(), this->rightChild->getCenter());
-                //this->rightChild->setPosition(this->getCenter().x + relativePositionRightChild.x, this->getCenter().y + relativePositionRightChild.y);
-            }
+        void updateChildrenLines(sf::Vector2f left, sf::Vector2f right) {
+            this->leftChildLine.update_point(this->getCenter(), left);
+            this->rightChildLine.update_point(this->getCenter(), right);
+        }
+
+        void updateLabel(){
+            this->setLabel();
         }
 
         sf::Vector2f getCenter(){
             auto shapePosition = this->shape.getPosition();
             return sf::Vector2f(shapePosition.x , shapePosition.y);
         }
-
-        void setData(int data){
-            this->data = data;
-            this->setLabel();
-        }
-
         int getRadius(){
             return this->shape.getRadius();
         }
@@ -111,7 +92,7 @@ class GFXNode : public sf::Drawable {
 
     private:
         void setLabel(){
-            this->text.setString(std::to_string(this->data));
+            this->text.setString(std::to_string(this->dataHolder));
             //Set origin to center
             this->setLabelPosition();
         }

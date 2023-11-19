@@ -4,59 +4,30 @@
 
 #include "classes/GFXNode.h"
 #include "classes/TreeHandler.h"
+#include "structures/Scgtree.h"
 
 int main()
 {
     sf::ContextSettings settings;
     settings.antialiasingLevel = 0;
 
-    sf::RenderWindow window(sf::VideoMode(1000, 600), "Scapegoat-tree Visualizer", sf::Style::Default, settings);
+    sf::RenderWindow window(sf::VideoMode(640, 480), "Scapegoat-tree Visualizer", sf::Style::Default, settings);
     window.setFramerateLimit(60);
 
-    sf::View view(sf::FloatRect(0, 0, 1000, 600));
+    sf::View view(sf::FloatRect(0, 0, 640, 480));
     window.setView(view);
 
     //Create root node
-    TreeHandler tree(window);
+    TreeHandler<int> treeHandler(window);
+    ScgTree<int> tree(treeHandler);
 
     std::thread t([&tree](){
-            //Insert random values
-            tree.addNode(50);
-            tree.addNode(25);
-            tree.addNode(75);
-            tree.addNode(12);
-            tree.addNode(37);
-            tree.addNode(62);
-            tree.addNode(87);
-            tree.addNode(6);
-            tree.addNode(18);
-            tree.addNode(31);
-            tree.addNode(43);
-            tree.addNode(56);
-            tree.addNode(68);
-            tree.addNode(81);
-            tree.addNode(93);
-            tree.addNode(3);
-            tree.addNode(9);
-            tree.addNode(15);
-            tree.addNode(21);
-            tree.addNode(28);
-            tree.addNode(34);
-            
-            tree.addNode(10);
-            tree.addNode(100);
-            tree.addNode(1);
-            tree.addNode(1052);
-            tree.addNode(100);
-            tree.addNode(2);
-
-            sf::sleep(sf::milliseconds(500));
-
-
-            std::cout << "Done!" << std::endl;
+        for(int i = 0; i < 100; i++){
+            tree.insert(rand() % 100);
+            sf::sleep(sf::milliseconds(10));
+            std::cout << "POS: " << i << std::endl;
+        }
     });
-
-    t.detach();
     
 
     while (window.isOpen())
@@ -66,6 +37,9 @@ int main()
             if (event.type == sf::Event::Closed)
             {
                 window.close();
+            }
+            else if(event.type == sf::Event::Resized){
+                view.setSize(event.size.width, event.size.height);
             }
         }
 
@@ -93,7 +67,7 @@ int main()
 
 
         window.clear();
-        tree.draw();
+        treeHandler.draw();
         window.display();
     }
 }
