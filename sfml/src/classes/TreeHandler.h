@@ -65,8 +65,7 @@ class TreeHandler {
                 this->nodes.push_back(temp);
                 reArrange(this->root);
 
-                std::cout << "VALUE INSERTED: " << data << " SIDE: " << (depth) << "maxDepth" << maxDepth << "\n";
-                
+                std::cout << "VALUE INSERTED: " << data << " SIDE: " << (depth) << "maxDepth" << maxDepth << "\n";   
             }
         }
 
@@ -85,10 +84,11 @@ class TreeHandler {
             if(node == nullptr)
                 return;
 
-            long offsetLeft = 30 * (getWeight(node->leftChild));
-            long offsetRight = 30 * (getWeight(node->rightChild));
 
-            std::cout << "Node: " << node->data << " offsetLeft: " << offsetLeft << " offsetRight: " << offsetRight << std::endl;
+            long offsetLeft = 25 * ((!node->leftChild) ? 0 : getWeight(node->leftChild->rightChild)) + 5;
+            long offsetRight = 25 * ((!node->rightChild) ? 0 : getWeight(node->rightChild->leftChild)) + 5;
+
+            std::cout << "Node: " << node->data << " offsetLeft: " << offsetLeft / 30 << " offsetRight: " << offsetRight / 30 << std::endl;
 
             auto center = node->getCenter();
 
@@ -102,15 +102,15 @@ class TreeHandler {
             reArrange(node->rightChild);
         }
 
-        long getWeight(GFXNode* node){
+        float getWeight(GFXNode* node){
             if(node == nullptr)
-                return 0;
+                return 0.75;
             else if(node->isLeaf())
                 return getWeight(node->leftChild) + getWeight(node->rightChild) +  1;
             else if (node->leftChild != nullptr && node->rightChild == nullptr)
-                return getWeight(node->leftChild) + getWeight(node->rightChild) +  2;
+                return getWeight(node->leftChild) + getWeight(node->rightChild) +  1;
             else 
-                return getWeight(node->leftChild) + getWeight(node->rightChild) + 3;
+                return getWeight(node->leftChild) + getWeight(node->rightChild) + 1;
 
         }
 
