@@ -4,12 +4,16 @@
 #include <list>
 #include "GFXNode.h"
 
+#define MIN_NODE_SEP 15.0f
+
 class TreeHandler {
     //SFML specific data
     sf::Font font;
     sf::RenderTarget& target;
     std::list<GFXNode*> nodes;
     GFXNode* root{};
+
+    
 
     //Logical data
     int maxDepth{};
