@@ -1,21 +1,32 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <iostream>
-#include "sfLine.h"
+#include "../util/sfLine.h"
+#include <cmath>
+
+#define PI 3.14159265358979323846
 
 enum Side{
     LEFT,
     RIGHT
 };
 
+float noise(float x){
+    return sin(2 * x) + sin(PI * x);
+}
+
 //Node that contains ONLY INT data
 template <typename T>
-class GFXNode : public sf::Drawable {
+class GFXNode {
 
     sf::Line leftChildLine, rightChildLine;
     //SFML specific data
     sf::CircleShape shape; //GRAPHIC REPRESENTATION OF THE NODE
     sf::Text text;         //Position is based on the shape 
+    sf::Clock clock;
+
+    sf::Vector2f targetPosition;
+    float velocity = 10.0f;
 
     public:
         T& dataHolder;
@@ -34,23 +45,49 @@ class GFXNode : public sf::Drawable {
             this->shape.setOrigin(this->shape.getRadius(), this->shape.getRadius());
 
             this->setPosition(20,20);
-
+            
             leftChildLine.update_point(this->getCenter(), this->getCenter());
             rightChildLine.update_point(this->getCenter(), this->getCenter());
         }
         
-        void draw(sf::RenderTarget &target, sf::RenderStates states) const {
-            target.draw(this->leftChildLine);
-            target.draw(this->rightChildLine);
+        void drawMain(sf::RenderTarget &target, sf::RenderStates states) const {
             target.draw(this->shape);
             target.draw(this->text);
         }
 
+        void drawLines(sf::RenderTarget &target, sf::RenderStates states) const {
+            target.draw(this->leftChildLine);
+            target.draw(this->rightChildLine);
+
+        }
+
+        
+        void update(float dt){
+            auto currentPosition = this->getCenter();
+            auto direction = this->targetPosition - currentPosition;
+            auto distance = sqrt(direction.x * direction.x + direction.y * direction.y);
+            if(distance > 1){
+                auto movement = direction * velocity * dt;
+                this->shape.move(movement);
+                this->setLabelPosition();
+            }
+
+            float ticks = clock.getElapsedTime().asSeconds() * 0.5;
+
+            //Add noisy movement
+            this->shape.move(sf::Vector2f(noise(ticks + targetPosition.x) * 0.25, noise(ticks + targetPosition.y) * 0.25));
+        }
+
         void setPosition(float x, float y){
             this->shape.setPosition(x, y);
+            this->setTarget(x,y);
             this->setLabelPosition();
         }
+
         
+        void setTarget(float x, float y){
+            this->targetPosition = sf::Vector2f(x,y);
+        }
 
         void connectTo(Side s, GFXNode* node){
             sf::Line& line = (s == LEFT) ?  (this->leftChildLine) : (this->rightChildLine);
@@ -78,6 +115,11 @@ class GFXNode : public sf::Drawable {
             auto shapePosition = this->shape.getPosition();
             return sf::Vector2f(shapePosition.x , shapePosition.y);
         }
+
+        sf::Vector2f getTarget(){
+            return this->targetPosition;
+        }
+        
         int getRadius(){
             return this->shape.getRadius();
         }

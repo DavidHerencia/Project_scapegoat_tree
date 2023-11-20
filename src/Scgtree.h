@@ -5,22 +5,33 @@
 #include <cmath>
 #include "Stack.h"
 
-#include "../classes/Node.h"
-#include "../classes/TreeHandler.h"
-
 using namespace std;
 
 #define ALPHA 0.57
+
+//Standard BST node, it is also used in the Scapegoat Tree
+template <typename T>
+struct ScgNode{
+    T data;
+    ScgNode<T> *left{}, *right{};
+
+    ScgNode() = default;
+
+    ScgNode(T value){
+        data = value;
+        left = right = nullptr;
+    }
+
+};
 
 //Scapegoat Tree class implementation
 template <typename T>
 class ScgTree{
     ScgNode<T>* root = nullptr;
     int treeSize, maxTreeSize;
-    TreeHandler<T>& treeHandler;
 
     public:
-        ScgTree(TreeHandler<T> & _treeHandler): treeHandler(_treeHandler){
+        ScgTree(){
             treeSize = 0;
             maxTreeSize = 0;
         }
@@ -85,34 +96,25 @@ ScgNode<T>* ScgTree<T>::find(T value) {
 // ================== Insert ================== 
 template <typename T>
 void ScgTree<T>::insert(T value){
-    //std::cout << "INSERT! " << value << std::endl;
     bool rebuilding = false;
     bool inserted = false;  // controllar repetidos
     inserted = insert(this->root,value, rebuilding);
-    if (inserted){ 
+    if (inserted){
         treeSize++;
         if(treeSize > maxTreeSize){
             maxTreeSize = treeSize;
         }
     }   
-    std::cout << "Done!" << std::endl;
-    treeHandler.arrangeNodes(this->root);
 }
 
 template <typename T>
 bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
             //caso base
             if(node == nullptr){
-                //std::cout << "FOUND! \n";
                 node = new ScgNode<T>(value);
-                treeHandler.addNode(node);
-                //std::cout << "Inserted " << node->data << std::endl;
-                node->graphic->select(false);
                 return true;
             }
 
-            node->graphic->select(true);
-            //std::cout << "l or r! \n";
             // find the insertion point of the new node
             if(value < node->data){
                 insert(node->left, value, rebuilding);
@@ -122,7 +124,6 @@ bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
             }
             else{
                 // value is already in the tree
-                node->graphic->select(false);
                 return false;
             }
 
@@ -136,14 +137,13 @@ bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
                 rebuild(subtreeSize, node);
                 rebuilding = true; // to avoid rebuilding upwards in the recursion
             }
-            node->graphic->select(false);
+
             return true;
         }
 
 // ================== Delete ==================
 template <typename T>
 void ScgTree<T>::remove(T value) {
-    std::cout << "REMOVE! " << value << std::endl;
     // deleting the node as we would from an ordinary binary search tree
     this->root = removeRecursion(root, value);
     // decrement the size of the tree in the function removeRecursion if the node is found
@@ -158,13 +158,10 @@ void ScgTree<T>::remove(T value) {
         rebuild(treeSize, this->root);
         maxTreeSize = treeSize;
     }
-    std::cout << "Done!" << std::endl;
-    treeHandler.arrangeNodes(this->root);
 }
 
 template <typename T>
 ScgNode<T>* ScgTree<T>::removeRecursion(ScgNode<T>* temp, T value) {
-    std::cout << "REMOVE RECURSION! " << value << std::endl;
     if (temp == nullptr) {
         return temp;
     }
@@ -177,36 +174,55 @@ ScgNode<T>* ScgTree<T>::removeRecursion(ScgNode<T>* temp, T value) {
         return temp;
     }
 
+    // return of the recursion
+
+    // We reach here when root is the node to be deleted.
+
+    // If one of the children is empty
     if (temp->left == nullptr) {
         ScgNode<T>* temporal = temp->right;
-        treeHandler.removeNode(temp);
+        delete temp;
         treeSize--;
         return temporal;
     } else if (temp->right == nullptr) {
         ScgNode<T> *temporal = temp->left;
-        treeHandler.removeNode(temp);
+        delete temp;
         treeSize--;
         return temporal;
     }
+
+    // If both children exist
     else {
         ScgNode<T>* succParent = temp;
+
+        // Find successor
         ScgNode<T>* succ = temp->right;
-        while (succ->left != nullptr) {
+        while (succ->left != NULL) {
             succParent = succ;
             succ = succ->left;
         }
 
+        // Delete successor.  Since successor
+        // is always left child of its parent
+        // we can safely make successor's right
+        // right child as left of its parent.
+        // If there is no succ, then assign
+        // succ->right to succParent->right
         if (succParent != temp)
             succParent->left = succ->right;
         else
             succParent->right = succ->right;
 
+        // Copy Successor Data to root
         temp->data = succ->data;
-        temp->graphic->updateLabel();
-        treeHandler.removeNode(succ);
+
+        // Delete Successor and return root
+        delete succ;
         treeSize--;
         return temp;
     }
+
+    return temp;
 }
 
 // ================== Rebuild ==================
@@ -214,6 +230,8 @@ template <typename T>
 void ScgTree<T>::rebuild(int n, ScgNode<T>* &scapegoat){
     ScgNode<T>* dumi_node = new ScgNode<T>();  // w en el paper
     ScgNode<T>* list; // z en el paper 
+
+    
 
     // Flatten the tree rooted at scapegoat
     list = flatten(scapegoat, dumi_node);
