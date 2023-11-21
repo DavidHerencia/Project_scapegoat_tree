@@ -178,7 +178,7 @@ void ScgTree<T>::remove(T value) {
 
 template <typename T>
 ScgNode<T>* ScgTree<T>::removeRecursion(ScgNode<T>* temp, T value) {
-    std::cout << "REMOVE RECURSION! " << value << std::endl;
+    //std::cout << "REMOVE RECURSION! " << value << std::endl;
     if (temp == nullptr) {
         return temp;
     }

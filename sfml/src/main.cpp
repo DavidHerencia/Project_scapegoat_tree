@@ -83,13 +83,19 @@ int main()
                 if(prev != nullptr)
                     prev->graphic->setBorder(false);
 
-
                 if (value == found->data)
                     break;
 
                 found->graphic->setBorder(true);  
-                sf::sleep(sf::milliseconds(900));
-  
+                //Wait to view center get NEAR node
+                while(true){
+                    auto center = found->graphic->getTarget();
+                    auto viewCenter = view.getCenter();
+                    auto distance = sqrt(pow(center.x - viewCenter.x, 2) + pow(center.y - viewCenter.y, 2));
+                    if(distance < 10){
+                        break;
+                    }
+                }
                 
                 prev = found;
                 if (value < found->data) {
@@ -99,9 +105,17 @@ int main()
                 }
 
             }
-
             if(found != nullptr)
                 found->graphic->select(true);
+            else{
+                std::cout << "Not found" << std::endl;
+                prev->graphic->select(false);
+            }
+
+
+
+            sf::sleep(sf::milliseconds(900));
+
 
             //Find node and center
             running = false;
@@ -117,7 +131,7 @@ int main()
     for(int i = 0; i < 999; i++){
         tree.insert(i);
     }
-    tree.setSleepTime(1000);
+    tree.setSleepTime(100);
 
     sf::Event event;
     while (window.isOpen())
@@ -159,7 +173,7 @@ int main()
                 auto distance = sqrt(pow(center.x - viewCenter.x, 2) + pow(center.y - viewCenter.y, 2));
                 if(distance > 1){
                     auto direction = center - viewCenter;
-                    auto movement = direction * 0.1f;
+                    auto movement = direction * 0.075f;
                     view.move(movement);
                 }
             }
