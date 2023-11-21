@@ -43,11 +43,13 @@ class GFXNode {
 
             //Set center origin of shape
             this->shape.setOrigin(this->shape.getRadius(), this->shape.getRadius());
-
+            this->shape.setOutlineColor(sf::Color::Magenta);
+            
             this->setPosition(20,20);
             
             leftChildLine.update_point(this->getCenter(), this->getCenter());
             rightChildLine.update_point(this->getCenter(), this->getCenter());
+
         }
         
         void drawMain(sf::RenderTarget &target, sf::RenderStates states) const {
@@ -126,6 +128,11 @@ class GFXNode {
 
         void select(bool val){
             this->shape.setFillColor((val) ? sf::Color::Red : sf::Color::White);
+        }
+
+        void setBorder(bool val, sf::Color color = sf::Color::Magenta){
+            this->shape.setOutlineThickness((val) ? 4 : 0);
+            this->shape.setOutlineColor(color);
         }
 
         bool isLeaf(){

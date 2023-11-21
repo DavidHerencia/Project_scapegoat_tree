@@ -18,6 +18,7 @@ class ScgTree{
     ScgNode<T>* root = nullptr;
     int treeSize, maxTreeSize;
     TreeHandler<T>& treeHandler;
+    float sleepTime = 0;
 
     public:
         ScgTree(TreeHandler<T> & _treeHandler): treeHandler(_treeHandler){
@@ -36,6 +37,14 @@ class ScgTree{
 
         void pretty(){
             pretty(root, 0);
+        }
+
+        void setSleepTime(float val){
+            this->sleepTime = val;
+        }
+
+        ScgNode<T>* getRoot(){
+            return this->root;
         }
 
     private:
@@ -69,15 +78,25 @@ class ScgTree{
 // ================== Search ==================
 template <typename T>
 ScgNode<T>* ScgTree<T>::find(T value) {
-    ScgNode<T>* temp = root; // start at root
+    ScgNode<T>* temp = root, *prev = nullptr; // start at root
     while (temp != nullptr) {
-        if (value == temp->data) {
+    
+        if(prev != nullptr)
+            prev->graphic->setBorder(false);
+
+        if (value == temp->data)
             return temp; // found
-        } else if (value < temp->data) {
+
+        temp->graphic->setBorder(true);    
+        
+        prev = temp;
+        if (value < temp->data) {
             temp = temp->left;
         } else {
             temp = temp->right;
         }
+
+        sf::sleep(sf::milliseconds(sleepTime));
     }
     return nullptr; // not found
 }
@@ -96,7 +115,7 @@ void ScgTree<T>::insert(T value){
         }
     }   
     std::cout << "Done!" << std::endl;
-    treeHandler.arrangeNodes(this->root);
+    treeHandler.arrangeNodes(this->root,true);
 }
 
 template <typename T>
@@ -107,11 +126,10 @@ bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
                 node = new ScgNode<T>(value);
                 treeHandler.addNode(node);
                 //std::cout << "Inserted " << node->data << std::endl;
-                node->graphic->select(false);
                 return true;
             }
 
-            node->graphic->select(true);
+            //node->graphic->select(true);
             //std::cout << "l or r! \n";
             // find the insertion point of the new node
             if(value < node->data){
@@ -122,21 +140,17 @@ bool ScgTree<T>::insert(ScgNode<T>*& node, T& value, bool& rebuilding){
             }
             else{
                 // value is already in the tree
-                node->graphic->select(false);
                 return false;
             }
-
 
             // return of the recursion
             // check if node is unbalanced
             if (double(height(node)) > height_a(node)  && !rebuilding){
                 int subtreeSize = size(node);
-
                 // rebuild the subtree
                 rebuild(subtreeSize, node);
                 rebuilding = true; // to avoid rebuilding upwards in the recursion
             }
-            node->graphic->select(false);
             return true;
         }
 
@@ -159,7 +173,7 @@ void ScgTree<T>::remove(T value) {
         maxTreeSize = treeSize;
     }
     std::cout << "Done!" << std::endl;
-    treeHandler.arrangeNodes(this->root);
+    treeHandler.arrangeNodes(this->root,true);
 }
 
 template <typename T>
@@ -229,7 +243,9 @@ ScgNode<T>* ScgTree<T>::flatten(ScgNode<T>* node, ScgNode<T>* list){
     // Flatten the tree rooted at node (IN PLACE)
     if (node == nullptr)
         return list;
+
     node->right = flatten(node->right, list);
+    node->graphic->setBorder(false);
     return flatten(node->left, node);
 }
 

@@ -15,12 +15,11 @@ template <typename T>
 class TreeHandler {
     //SFML specific data
     sf::Font font;
-    sf::RenderTarget& target;
+    sf::RenderWindow& target;
     std::list<ScgNode<T>*> nodes;
-    std::mutex mtx;
 
     public:
-        TreeHandler(sf::RenderTarget& _target): target(_target){
+        TreeHandler(sf::RenderWindow& _target): target(_target){
             if(!font.loadFromFile("assets/font.ttf"))
                 std::cout << "Error loading font" << std::endl;
             else
@@ -41,7 +40,6 @@ class TreeHandler {
         
         void draw(){
             //Draw all LINES
-            mtx.lock();
             for(auto node : nodes){
                 if(node == nullptr)
                     continue;
@@ -55,21 +53,18 @@ class TreeHandler {
                     continue;
                 node->graphic->drawMain(this->target, sf::RenderStates::Default);
             }
-            mtx.unlock();
         }
 
         void update(float dt){
-            mtx.lock();
             for (auto node : nodes){
                 if(node == nullptr)
                     continue;
                 node->graphic->update(dt);
                 node->graphic->updateChildrenLines((!node->left) ? node->graphic->getCenter() : node->left->graphic->getCenter(), (!node->right) ? node->graphic->getCenter() : node->right->graphic->getCenter());
             }
-            mtx.unlock();
         }
 
-        void arrangeNodes(ScgNode<T>* node){
+        void arrangeNodes(ScgNode<T>* node, bool forceUpdate = false){
             std::cout << "Re arranging" << std::endl;
             //First node is always the "root"
             node->graphic->setPosition(this->target.getSize().x/2, 50);   
