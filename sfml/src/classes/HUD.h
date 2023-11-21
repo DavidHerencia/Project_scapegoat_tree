@@ -6,14 +6,6 @@
 #include <functional>
 
 #define HEIGHT_BAR 45
-
-enum class Status{
-    INSERT,
-    REMOVE,
-    FIND,
-    NONE
-};
-
 class HUD
 {
     sf::RenderWindow& target;
@@ -65,7 +57,7 @@ class HUD
         
 
         void updateStatus(std::string text){
-            this->text.setString(text);
+            this->text.setString("Status: " + text);
         }
 
         void draw(){

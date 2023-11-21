@@ -192,9 +192,13 @@ int main()
             }
 
             treeHandler.update(0.016f);
-            
-            if(!running)
+            if(!running){
+                hud.updateStatus("READY.");
                 hud.update(event);
+            }
+            else{    
+                hud.updateStatus("RUNNING...");
+            }
 
         }
 
